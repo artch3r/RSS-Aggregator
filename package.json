@@ -16,5 +16,11 @@
     "url": "https://github.com/artch3r/frontend-project-11/issues"
   },
   "type": "module",
-  "homepage": "https://github.com/artch3r/frontend-project-11#readme"
+  "homepage": "https://github.com/artch3r/frontend-project-11#readme",
+  "devDependencies": {
+    "eslint": "^8.29.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-jest": "^27.1.6"
+  }
 }
