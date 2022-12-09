@@ -15,5 +15,6 @@
   "bugs": {
     "url": "https://github.com/artch3r/frontend-project-11/issues"
   },
+  "type": "module",
   "homepage": "https://github.com/artch3r/frontend-project-11#readme"
 }
