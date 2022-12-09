@@ -1,0 +1,19 @@
+{
+  "name": "@hexlet/code",
+  "version": "1.0.0",
+  "description": "RSS Aggregator",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/artch3r/frontend-project-11.git"
+  },
+  "author": "artch3r",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/artch3r/frontend-project-11/issues"
+  },
+  "homepage": "https://github.com/artch3r/frontend-project-11#readme"
+}
