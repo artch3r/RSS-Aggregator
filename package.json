@@ -15,12 +15,18 @@
   "bugs": {
     "url": "https://github.com/artch3r/frontend-project-11/issues"
   },
-  "type": "module",
   "homepage": "https://github.com/artch3r/frontend-project-11#readme",
   "devDependencies": {
+    "@babel/core": "^7.20.5",
+    "@babel/preset-env": "^7.20.2",
+    "babel-loader": "^9.1.0",
     "eslint": "^8.29.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.26.0",
-    "eslint-plugin-jest": "^27.1.6"
+    "eslint-plugin-jest": "^27.1.6",
+    "html-webpack-plugin": "^5.5.0",
+    "webpack": "^5.75.0",
+    "webpack-cli": "^5.0.1",
+    "webpack-dev-server": "^4.11.1"
   }
 }
