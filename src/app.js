@@ -19,9 +19,16 @@ const app = (i18next) => {
 
   const watchedState = onChange(state, render(state, elements, i18next));
 
-  const strSchema = yup.string().url();
-
   const validate = (input) => {
+    yup.setLocale({
+      string: {
+        url: i18next.t('errors.url'),
+      },
+      mixed: {
+        notOneOf: i18next.t('errors.notOneOf'),
+      },
+    });
+    const strSchema = yup.string().url();
     const uniqueSchema = yup.mixed().notOneOf(state.feeds);
     return strSchema.validate(input).then((url) => uniqueSchema.validate(url));
   };

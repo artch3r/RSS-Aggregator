@@ -1,5 +1,4 @@
 const render = (state, elements, i18next) => (path, value) => {
-  console.log(state);
   if (path === 'rssForm.state') {
     switch (value) {
       case 'invalid':
