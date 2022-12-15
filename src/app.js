@@ -5,10 +5,8 @@ import { uniqueId } from 'lodash';
 import render from './render.js';
 
 const state = {
-  rssForm: {
-    state: 'filling',
-    error: '',
-  },
+  formState: 'filling',
+  error: '',
   feeds: [],
   posts: [],
 };
@@ -44,6 +42,48 @@ const validate = (input) => {
   return strSchema.validate(input).then((url) => uniqueSchema.validate(url));
 };
 
+const parsePost = (post, feedId) => {
+  const postLink = post.querySelector('link').textContent;
+  const postTitle = post.querySelector('title').textContent;
+  const postDescription = post.querySelector('description').textContent;
+  const postDate = post.querySelector('pubDate').textContent;
+  return {
+    link: postLink,
+    title: postTitle,
+    description: postDescription,
+    date: postDate,
+    id: uniqueId(),
+    feedId,
+  };
+};
+
+const updatePosts = (watchedState) => {
+  if (state.feeds.length === 0) {
+    return setTimeout(updatePosts, 5000, watchedState);
+  }
+
+  state.feeds.forEach((feed) => {
+    getData(feed.link).then((response) => {
+      const data = parse(response.data.contents);
+      const posts = data.querySelectorAll('item');
+      const displayedPostsTitles = state.posts.map((post) => post.title);
+      const newPosts = [...posts].filter((post) => {
+        const title = post.querySelector('title').textContent;
+        return !displayedPostsTitles.includes(title);
+      });
+      newPosts.forEach((post) => {
+        watchedState.posts.push(parsePost(post, feed.id));
+      });
+    })
+      .catch((e) => {
+        // eslint-disable-next-line no-param-reassign
+        watchedState.error = e.message;
+      });
+  });
+
+  return setTimeout(updatePosts, 5000, watchedState);
+};
+
 const app = (i18next) => {
   const watchedState = onChange(state, render(state, elements, i18next));
 
@@ -53,8 +93,8 @@ const app = (i18next) => {
     const input = formData.get('url');
     validate(input)
       .then(() => {
-        state.rssForm.error = '';
-        watchedState.rssForm.state = 'sending';
+        state.error = '';
+        watchedState.formState = 'sending';
         return getData(input);
       })
       .then((response) => {
@@ -72,31 +112,22 @@ const app = (i18next) => {
 
           const posts = data.querySelectorAll('item');
           posts.forEach((post) => {
-            const postLink = post.querySelector('link').textContent;
-            const postTitle = post.querySelector('title').textContent;
-            const postDescription = post.querySelector('description').textContent;
-            const postDate = post.querySelector('pubDate').textContent;
-            state.posts.push({
-              link: postLink,
-              title: postTitle,
-              description: postDescription,
-              date: postDate,
-              id: uniqueId(),
-              feedId,
-            });
+            state.posts.push(parsePost(post, feedId));
           });
 
-          watchedState.rssForm.state = 'added';
+          watchedState.formState = 'added';
         } catch (e) {
-          watchedState.rssForm.state = 'invalid';
-          watchedState.rssForm.error = 'Not RSS';
+          watchedState.formState = 'invalid';
+          watchedState.error = 'Not RSS';
         }
       })
       .catch((e) => {
-        watchedState.rssForm.state = 'invalid';
-        watchedState.rssForm.error = e.message.key ?? e.message;
+        watchedState.formState = 'invalid';
+        watchedState.error = e.message.key ?? e.message;
       });
   });
+
+  updatePosts(watchedState);
 };
 
 export default app;

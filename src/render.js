@@ -60,7 +60,7 @@ const createList = (itemsType, state) => {
 };
 
 const render = (state, elements, i18next) => (path, value) => {
-  if (path === 'rssForm.state') {
+  if (path === 'formState') {
     switch (value) {
       case 'invalid':
         elements.submit.disabled = false;
@@ -78,13 +78,13 @@ const render = (state, elements, i18next) => (path, value) => {
         elements.feedback.textContent = i18next.t('status.sending');
         break;
       case 'added': {
+        elements.submit.disabled = false;
         elements.postsList.innerHTML = '';
         elements.feedsList.innerHTML = '';
         const feeds = createList('feeds', state);
         elements.feedsList.append(feeds);
         const posts = createList('posts', state);
         elements.postsList.append(posts);
-        elements.submit.disabled = false;
         elements.urlInput.classList.remove('is-invalid');
         elements.feedback.classList.remove('text-danger');
         elements.feedback.classList.remove('text-warning');
@@ -99,8 +99,15 @@ const render = (state, elements, i18next) => (path, value) => {
     }
   }
 
-  if (path === 'rssForm.error') {
-    elements.feedback.textContent = i18next.t(`errors.${state.rssForm.error}`);
+  if (path === 'error') {
+    elements.feedback.classList.add('text-danger');
+    elements.feedback.textContent = i18next.t(`errors.${state.error}`);
+  }
+
+  if (path === 'posts') {
+    elements.postsList.innerHTML = '';
+    const posts = createList('posts', state);
+    elements.postsList.append(posts);
   }
 };
 
