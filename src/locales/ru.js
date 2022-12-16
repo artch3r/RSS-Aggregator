@@ -10,5 +10,9 @@ export default {
       sending: 'RSS загружается',
       success: 'RSS успешно загружен',
     },
+    items: {
+      feeds: 'Фиды',
+      posts: 'Посты',
+    },
   },
 };
