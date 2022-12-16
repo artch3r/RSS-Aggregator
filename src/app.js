@@ -64,6 +64,8 @@ const updatePosts = (watchedState) => {
 
   state.feeds.forEach((feed) => {
     getData(feed.link).then((response) => {
+      // eslint-disable-next-line no-param-reassign
+      watchedState.error = '';
       const data = parse(response.data.contents);
       const posts = data.querySelectorAll('item');
       const displayedPostsTitles = state.posts.map((post) => post.title);

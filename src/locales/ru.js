@@ -5,6 +5,7 @@ export default {
       'Already in list': 'RSS уже существует',
       'Not RSS': 'Ресурс не содержит валидный RSS',
       'Network Error': 'Ошибка сети',
+      '': '',
     },
     status: {
       sending: 'RSS загружается',

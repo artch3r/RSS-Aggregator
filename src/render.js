@@ -69,55 +69,81 @@ const createList = (itemsType, state, i18next) => {
   return card;
 };
 
-const render = (state, elements, i18next) => (path, value) => {
-  if (path === 'formState') {
-    switch (value) {
-      case 'invalid':
-        elements.submit.disabled = false;
-        elements.urlInput.classList.add('is-invalid');
-        elements.feedback.classList.remove('text-success');
-        elements.feedback.classList.remove('text-warning');
-        elements.feedback.classList.add('text-danger');
-        break;
-      case 'sending':
-        elements.submit.disabled = true;
-        elements.urlInput.classList.remove('is-invalid');
-        elements.feedback.classList.remove('text-danger');
-        elements.feedback.classList.remove('text-success');
-        elements.feedback.classList.add('text-warning');
-        elements.feedback.textContent = i18next.t('status.sending');
-        break;
-      case 'added': {
-        elements.submit.disabled = false;
-        elements.postsList.innerHTML = '';
-        elements.feedsList.innerHTML = '';
-        const feeds = createList('feeds', state, i18next);
-        elements.feedsList.append(feeds);
-        const posts = createList('posts', state, i18next);
-        elements.postsList.append(posts);
-        elements.urlInput.classList.remove('is-invalid');
-        elements.feedback.classList.remove('text-danger');
-        elements.feedback.classList.remove('text-warning');
-        elements.feedback.classList.add('text-success');
-        elements.feedback.textContent = i18next.t('status.success');
-        elements.form.reset();
-        elements.urlInput.focus();
-        break;
-      }
-      default:
-        break;
+const renderInvalid = (elements) => {
+  elements.submit.disabled = false;
+  elements.urlInput.classList.add('is-invalid');
+  elements.feedback.classList.remove('text-success');
+  elements.feedback.classList.remove('text-warning');
+  elements.feedback.classList.add('text-danger');
+};
+
+const renderSending = (elements, i18next) => {
+  elements.submit.disabled = true;
+  elements.urlInput.classList.remove('is-invalid');
+  elements.feedback.classList.remove('text-danger');
+  elements.feedback.classList.remove('text-success');
+  elements.feedback.classList.add('text-warning');
+  elements.feedback.textContent = i18next.t('status.sending');
+};
+
+const renderAdded = (state, elements, i18next) => {
+  elements.submit.disabled = false;
+  elements.postsList.innerHTML = '';
+  elements.feedsList.innerHTML = '';
+  const feeds = createList('feeds', state, i18next);
+  elements.feedsList.append(feeds);
+  const posts = createList('posts', state, i18next);
+  elements.postsList.append(posts);
+  elements.urlInput.classList.remove('is-invalid');
+  elements.feedback.classList.remove('text-danger');
+  elements.feedback.classList.remove('text-warning');
+  elements.feedback.classList.add('text-success');
+  elements.feedback.textContent = i18next.t('status.success');
+  elements.form.reset();
+  elements.urlInput.focus();
+};
+
+const renderState = (state, elements, i18next, value) => {
+  switch (value) {
+    case 'invalid':
+      renderInvalid(elements);
+      break;
+    case 'sending':
+      renderSending(elements, i18next);
+      break;
+    case 'added': {
+      renderAdded(state, elements, i18next);
+      break;
     }
+    default:
+      break;
   }
+};
 
-  if (path === 'error') {
-    elements.feedback.classList.add('text-danger');
-    elements.feedback.textContent = i18next.t(`errors.${state.error}`);
-  }
+const renderError = (state, elements, i18next) => {
+  elements.feedback.classList.add('text-danger');
+  elements.feedback.textContent = i18next.t(`errors.${state.error}`);
+};
 
-  if (path === 'posts') {
-    elements.postsList.innerHTML = '';
-    const posts = createList('posts', state);
-    elements.postsList.append(posts);
+const renderPosts = (state, elements, i18next) => {
+  elements.postsList.innerHTML = '';
+  const posts = createList('posts', state, i18next);
+  elements.postsList.append(posts);
+};
+
+const render = (state, elements, i18next) => (path, value) => {
+  switch (path) {
+    case 'formState':
+      renderState(state, elements, i18next, value);
+      break;
+    case 'error':
+      renderError(state, elements, i18next);
+      break;
+    case 'posts':
+      renderPosts(state, elements, i18next);
+      break;
+    default:
+      break;
   }
 };
 
