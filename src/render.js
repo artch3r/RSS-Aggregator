@@ -88,12 +88,6 @@ const renderSending = (elements, i18next) => {
 
 const renderAdded = (state, elements, i18next) => {
   elements.submit.disabled = false;
-  elements.postsList.innerHTML = '';
-  elements.feedsList.innerHTML = '';
-  const feeds = createList('feeds', state, i18next);
-  elements.feedsList.append(feeds);
-  const posts = createList('posts', state, i18next);
-  elements.postsList.append(posts);
   elements.urlInput.classList.remove('is-invalid');
   elements.feedback.classList.remove('text-danger');
   elements.feedback.classList.remove('text-warning');
@@ -125,6 +119,12 @@ const renderError = (state, elements, i18next) => {
   elements.feedback.textContent = i18next.t(`errors.${state.error}`);
 };
 
+const renderFeeds = (state, elements, i18next) => {
+  elements.feedsList.innerHTML = '';
+  const feeds = createList('feeds', state, i18next);
+  elements.feedsList.append(feeds);
+};
+
 const renderPosts = (state, elements, i18next) => {
   elements.postsList.innerHTML = '';
   const posts = createList('posts', state, i18next);
@@ -138,6 +138,9 @@ const render = (state, elements, i18next) => (path, value) => {
       break;
     case 'error':
       renderError(state, elements, i18next);
+      break;
+    case 'feeds':
+      renderFeeds(state, elements, i18next);
       break;
     case 'posts':
       renderPosts(state, elements, i18next);

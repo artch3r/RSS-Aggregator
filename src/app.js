@@ -58,10 +58,6 @@ const parsePost = (post, feedId) => {
 };
 
 const updatePosts = (watchedState) => {
-  if (state.feeds.length === 0) {
-    return setTimeout(updatePosts, 5000, watchedState);
-  }
-
   state.feeds.forEach((feed) => {
     getData(feed.link).then((response) => {
       // eslint-disable-next-line no-param-reassign
@@ -86,6 +82,23 @@ const updatePosts = (watchedState) => {
   return setTimeout(updatePosts, 5000, watchedState);
 };
 
+const handleData = (data, watchedState, input) => {
+  const feedTitle = data.querySelector('title').textContent;
+  const feedDescription = data.querySelector('description').textContent;
+  const feedId = uniqueId();
+  watchedState.feeds.push({
+    link: input,
+    title: feedTitle,
+    description: feedDescription,
+    id: feedId,
+  });
+
+  const posts = data.querySelectorAll('item');
+  posts.forEach((post) => {
+    watchedState.posts.push(parsePost(post, feedId));
+  });
+};
+
 const app = (i18next) => {
   const watchedState = onChange(state, render(state, elements, i18next));
 
@@ -102,21 +115,7 @@ const app = (i18next) => {
       .then((response) => {
         const data = parse(response.data.contents);
         try {
-          const feedTitle = data.querySelector('title').textContent;
-          const feedDescription = data.querySelector('description').textContent;
-          const feedId = uniqueId();
-          state.feeds.push({
-            link: input,
-            title: feedTitle,
-            description: feedDescription,
-            id: feedId,
-          });
-
-          const posts = data.querySelectorAll('item');
-          posts.forEach((post) => {
-            state.posts.push(parsePost(post, feedId));
-          });
-
+          handleData(data, watchedState, input);
           watchedState.formState = 'added';
         } catch (e) {
           watchedState.formState = 'invalid';
