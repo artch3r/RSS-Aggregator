@@ -17,7 +17,22 @@ const createFeeds = (state) => {
   return feeds;
 };
 
-const createPosts = (state) => {
+const createButton = (post, elements) => {
+  const buttonEl = document.createElement('button');
+  buttonEl.setAttribute('type', 'button');
+  buttonEl.setAttribute('data-id', post.id);
+  buttonEl.setAttribute('data-bs-toggle', 'modal');
+  buttonEl.setAttribute('data-bs-target', '#modal');
+  buttonEl.classList.add('btn', 'btn-outline-primary', 'btn-sm');
+  buttonEl.textContent = 'Просмотр';
+  buttonEl.addEventListener('click', () => {
+    elements.modalHeader.textContent = post.title;
+    elements.modalBody.textContent = post.description;
+  });
+  return buttonEl;
+};
+
+const createPosts = (state, elements) => {
   const posts = [];
   state.posts.forEach((post) => {
     const liEl = document.createElement('li');
@@ -29,13 +44,7 @@ const createPosts = (state) => {
     aEl.setAttribute('rel', 'noopener noreferrer');
     aEl.classList.add('fw-bold');
     aEl.textContent = post.title;
-    const buttonEl = document.createElement('button');
-    buttonEl.setAttribute('type', 'button');
-    buttonEl.setAttribute('data-id', post.id);
-    buttonEl.setAttribute('data-bs-toggle', 'modal');
-    buttonEl.setAttribute('data-bs-target', '#modal');
-    buttonEl.classList.add('btn', 'btn-outline-primary', 'btn-sm');
-    buttonEl.textContent = 'Просмотр';
+    const buttonEl = createButton(post, elements);
     liEl.append(aEl);
     liEl.append(buttonEl);
     posts.push(liEl);
@@ -43,7 +52,7 @@ const createPosts = (state) => {
   return posts;
 };
 
-const createList = (itemsType, state, i18next) => {
+const createList = (itemsType, state, i18next, elements) => {
   const card = document.createElement('div');
   card.classList.add('card', 'border-0');
   const cardBody = document.createElement('div');
@@ -60,7 +69,7 @@ const createList = (itemsType, state, i18next) => {
       list.append(...createFeeds(state));
       break;
     case 'posts':
-      list.append(...createPosts(state));
+      list.append(...createPosts(state, elements));
       break;
     default:
       break;
@@ -127,7 +136,7 @@ const renderFeeds = (state, elements, i18next) => {
 
 const renderPosts = (state, elements, i18next) => {
   elements.postsList.innerHTML = '';
-  const posts = createList('posts', state, i18next);
+  const posts = createList('posts', state, i18next, elements);
   elements.postsList.append(posts);
 };
 

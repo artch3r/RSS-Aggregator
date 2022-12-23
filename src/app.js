@@ -18,6 +18,8 @@ const elements = {
   feedback: document.querySelector('.feedback'),
   postsList: document.querySelector('.posts'),
   feedsList: document.querySelector('.feeds'),
+  modalHeader: document.querySelector('.modal-header'),
+  modalBody: document.querySelector('.modal-body'),
 };
 
 const getData = (url) => axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${url}`);
