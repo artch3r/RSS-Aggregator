@@ -17,7 +17,7 @@ const createFeeds = (state) => {
   return feeds;
 };
 
-const createButton = (post, elements) => {
+const createButton = (post, elements, state) => {
   const buttonEl = document.createElement('button');
   buttonEl.setAttribute('type', 'button');
   buttonEl.setAttribute('data-id', post.id);
@@ -28,6 +28,10 @@ const createButton = (post, elements) => {
   buttonEl.addEventListener('click', () => {
     elements.modalHeader.textContent = post.title;
     elements.modalBody.textContent = post.description;
+    state.uiState.viewedPostsIds.push(post.id);
+    const postElement = document.querySelector(`[data-id="${post.id}"]`);
+    postElement.classList.remove('fw-bold');
+    postElement.classList.add('fw-normal');
   });
   return buttonEl;
 };
@@ -42,9 +46,13 @@ const createPosts = (state, elements) => {
     aEl.setAttribute('data-id', post.id);
     aEl.setAttribute('target', '_blank');
     aEl.setAttribute('rel', 'noopener noreferrer');
-    aEl.classList.add('fw-bold');
+    if (state.uiState.viewedPostsIds.includes(post.id)) {
+      aEl.classList.add('fw-normal');
+    } else {
+      aEl.classList.add('fw-bold');
+    }
     aEl.textContent = post.title;
-    const buttonEl = createButton(post, elements);
+    const buttonEl = createButton(post, elements, state);
     liEl.append(aEl);
     liEl.append(buttonEl);
     posts.push(liEl);

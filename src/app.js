@@ -9,6 +9,9 @@ const state = {
   error: '',
   feeds: [],
   posts: [],
+  uiState: {
+    viewedPostsIds: [],
+  },
 };
 
 const elements = {
@@ -60,6 +63,7 @@ const parsePost = (post, feedId) => {
 };
 
 const updatePosts = (watchedState) => {
+  console.log('update', state);
   state.feeds.forEach((feed) => {
     getData(feed.link).then((response) => {
       // eslint-disable-next-line no-param-reassign
