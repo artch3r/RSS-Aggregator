@@ -97,7 +97,7 @@ const app = (i18next) => {
     feeds: [],
     posts: [],
     uiState: {
-      viewedPostsIds: [],
+      viewedPostsIds: new Set(),
     },
   };
 

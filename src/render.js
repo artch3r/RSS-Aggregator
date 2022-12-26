@@ -29,10 +29,11 @@ const createButton = (post, elements, state) => {
     elements.modalHeader.textContent = post.title;
     elements.modalBody.textContent = post.description;
     elements.modalHref.setAttribute('href', post.link);
-    state.uiState.viewedPostsIds.push(post.id);
+    state.uiState.viewedPostsIds.add(post.id);
     const postElement = document.querySelector(`[data-id="${post.id}"]`);
     postElement.classList.remove('fw-bold');
     postElement.classList.add('fw-normal');
+    console.log('state', state);
   });
   return buttonEl;
 };
@@ -47,7 +48,7 @@ const createPosts = (state, elements) => {
     aEl.setAttribute('data-id', post.id);
     aEl.setAttribute('target', '_blank');
     aEl.setAttribute('rel', 'noopener noreferrer');
-    if (state.uiState.viewedPostsIds.includes(post.id)) {
+    if (state.uiState.viewedPostsIds.has(post.id)) {
       aEl.classList.add('fw-normal');
     } else {
       aEl.classList.add('fw-bold');
