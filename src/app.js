@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 import * as yup from 'yup';
 import onChange from 'on-change';
 import axios from 'axios';
@@ -26,13 +27,6 @@ const elements = {
   modalHref: document.querySelector('.full-article'),
 };
 
-const getData = (url) => axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${url}`);
-
-const parse = (data) => {
-  const parser = new DOMParser();
-  return parser.parseFromString(data, 'application/xml');
-};
-
 const validate = (input) => {
   yup.setLocale({
     string: {
@@ -48,7 +42,9 @@ const validate = (input) => {
   return strSchema.validate(input).then((url) => uniqueSchema.validate(url));
 };
 
-const parsePost = (post, feedId) => {
+const getData = (url) => axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${url}`);
+
+const parsePost = (post) => {
   const postLink = post.querySelector('link').textContent;
   const postTitle = post.querySelector('title').textContent;
   const postDescription = post.querySelector('description').textContent;
@@ -58,51 +54,55 @@ const parsePost = (post, feedId) => {
     title: postTitle,
     description: postDescription,
     date: postDate,
-    id: uniqueId(),
-    feedId,
   };
+};
+
+const parse = (rss, input) => {
+  const parser = new DOMParser();
+  const data = parser.parseFromString(rss, 'application/xml');
+  try {
+    const feedTitle = data.querySelector('title').textContent;
+    const feedDescription = data.querySelector('description').textContent;
+    const feed = {
+      link: input,
+      title: feedTitle,
+      description: feedDescription,
+    };
+    const posts = [...data.querySelectorAll('item')].map(parsePost);
+    return { feed, posts };
+  } catch (e) {
+    throw new Error('Not RSS');
+  }
+};
+
+const addIds = (posts, feedId) => {
+  posts.forEach((post) => {
+    post.id = uniqueId();
+    post.feedId = feedId;
+  });
+};
+
+const handleData = (data, watchedState) => {
+  const { feed, posts } = data;
+  feed.id = uniqueId();
+  watchedState.feeds.push(feed);
+  addIds(posts, feed.id);
+  watchedState.posts.push(...posts);
+  watchedState.formState = 'added';
 };
 
 const updatePosts = (watchedState) => {
   state.feeds.forEach((feed) => {
     getData(feed.link).then((response) => {
-      // eslint-disable-next-line no-param-reassign
-      watchedState.error = '';
-      const data = parse(response.data.contents);
-      const posts = data.querySelectorAll('item');
+      const { posts } = parse(response.data.contents);
       const displayedPostsTitles = state.posts.map((post) => post.title);
-      const newPosts = [...posts].filter((post) => {
-        const title = post.querySelector('title').textContent;
-        return !displayedPostsTitles.includes(title);
-      });
-      newPosts.forEach((post) => {
-        watchedState.posts.push(parsePost(post, feed.id));
-      });
-    })
-      .catch((e) => {
-        // eslint-disable-next-line no-param-reassign
-        watchedState.error = e.message;
-      });
+      const newPosts = posts.filter((post) => !displayedPostsTitles.includes(post.title));
+      addIds(newPosts, feed.id);
+      watchedState.posts.unshift(...newPosts);
+    });
   });
 
   return setTimeout(updatePosts, 5000, watchedState);
-};
-
-const handleData = (data, watchedState, input) => {
-  const feedTitle = data.querySelector('title').textContent;
-  const feedDescription = data.querySelector('description').textContent;
-  const feedId = uniqueId();
-  watchedState.feeds.push({
-    link: input,
-    title: feedTitle,
-    description: feedDescription,
-    id: feedId,
-  });
-
-  const posts = data.querySelectorAll('item');
-  posts.forEach((post) => {
-    watchedState.posts.push(parsePost(post, feedId));
-  });
 };
 
 const app = (i18next) => {
@@ -119,14 +119,8 @@ const app = (i18next) => {
         return getData(input);
       })
       .then((response) => {
-        const data = parse(response.data.contents);
-        try {
-          handleData(data, watchedState, input);
-          watchedState.formState = 'added';
-        } catch (e) {
-          watchedState.formState = 'invalid';
-          watchedState.error = 'Not RSS';
-        }
+        const data = parse(response.data.contents, input);
+        handleData(data, watchedState);
       })
       .catch((e) => {
         watchedState.formState = 'invalid';
