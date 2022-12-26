@@ -5,29 +5,7 @@ import axios from 'axios';
 import { uniqueId } from 'lodash';
 import render from './render.js';
 
-const state = {
-  formState: 'filling',
-  error: '',
-  feeds: [],
-  posts: [],
-  uiState: {
-    viewedPostsIds: [],
-  },
-};
-
-const elements = {
-  form: document.querySelector('.rss-form'),
-  urlInput: document.querySelector('#url-input'),
-  submit: document.querySelector('[type="submit"]'),
-  feedback: document.querySelector('.feedback'),
-  postsList: document.querySelector('.posts'),
-  feedsList: document.querySelector('.feeds'),
-  modalHeader: document.querySelector('.modal-header'),
-  modalBody: document.querySelector('.modal-body'),
-  modalHref: document.querySelector('.full-article'),
-};
-
-const validate = (input) => {
+const validate = (input, state) => {
   yup.setLocale({
     string: {
       url: () => ({ key: 'Not URL' }),
@@ -92,10 +70,10 @@ const handleData = (data, watchedState) => {
 };
 
 const updatePosts = (watchedState) => {
-  state.feeds.forEach((feed) => {
+  watchedState.feeds.forEach((feed) => {
     getData(feed.link).then((response) => {
       const { posts } = parse(response.data.contents);
-      const displayedPostsTitles = state.posts.map((post) => post.title);
+      const displayedPostsTitles = watchedState.posts.map((post) => post.title);
       const newPosts = posts.filter((post) => !displayedPostsTitles.includes(post.title));
       addIds(newPosts, feed.id);
       watchedState.posts.unshift(...newPosts);
@@ -106,13 +84,35 @@ const updatePosts = (watchedState) => {
 };
 
 const app = (i18next) => {
+  const state = {
+    formState: 'filling',
+    error: '',
+    feeds: [],
+    posts: [],
+    uiState: {
+      viewedPostsIds: [],
+    },
+  };
+
+  const elements = {
+    form: document.querySelector('.rss-form'),
+    urlInput: document.querySelector('#url-input'),
+    submit: document.querySelector('[type="submit"]'),
+    feedback: document.querySelector('.feedback'),
+    postsList: document.querySelector('.posts'),
+    feedsList: document.querySelector('.feeds'),
+    modalHeader: document.querySelector('.modal-header'),
+    modalBody: document.querySelector('.modal-body'),
+    modalHref: document.querySelector('.full-article'),
+  };
+
   const watchedState = onChange(state, render(state, elements, i18next));
 
   elements.form.addEventListener('submit', (event) => {
     event.preventDefault();
     const formData = new FormData(event.target);
     const input = formData.get('url');
-    validate(input)
+    validate(input, state)
       .then(() => {
         state.error = '';
         watchedState.formState = 'sending';
