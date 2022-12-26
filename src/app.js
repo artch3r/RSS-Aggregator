@@ -20,10 +20,14 @@ const validate = (input, state) => {
   return strSchema.validate(input).then((url) => uniqueSchema.validate(url));
 };
 
-const getData = (url) => axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${url}`)
-  .catch(() => {
+const getData = (url) => {
+  const proxyUrl = new URL('/get', 'https://allorigins.hexlet.app');
+  proxyUrl.searchParams.append('disableCache', 'true');
+  proxyUrl.searchParams.append('url', url);
+  return axios.get(proxyUrl).catch(() => {
     throw new Error('networkError');
   });
+};
 
 const parsePost = (post) => {
   const postLink = post.querySelector('link').textContent;
