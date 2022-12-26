@@ -8,10 +8,10 @@ import render from './render.js';
 const validate = (input, state) => {
   yup.setLocale({
     string: {
-      url: () => ({ key: 'Not URL' }),
+      url: () => ({ key: 'notUrl' }),
     },
     mixed: {
-      notOneOf: () => ({ key: 'Already in list' }),
+      notOneOf: () => ({ key: 'alreadyInList' }),
     },
   });
   const strSchema = yup.string().url();
@@ -20,7 +20,10 @@ const validate = (input, state) => {
   return strSchema.validate(input).then((url) => uniqueSchema.validate(url));
 };
 
-const getData = (url) => axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${url}`);
+const getData = (url) => axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${url}`)
+  .catch(() => {
+    throw new Error('networkError');
+  });
 
 const parsePost = (post) => {
   const postLink = post.querySelector('link').textContent;
@@ -49,7 +52,7 @@ const parse = (rss, input) => {
     const posts = [...data.querySelectorAll('item')].map(parsePost);
     return { feed, posts };
   } catch (e) {
-    throw new Error('Not RSS');
+    throw new Error('notRss');
   }
 };
 
