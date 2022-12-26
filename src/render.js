@@ -28,6 +28,7 @@ const createButton = (post, elements, state) => {
   buttonEl.addEventListener('click', () => {
     elements.modalHeader.textContent = post.title;
     elements.modalBody.textContent = post.description;
+    elements.modalHref.setAttribute('href', post.link);
     state.uiState.viewedPostsIds.push(post.id);
     const postElement = document.querySelector(`[data-id="${post.id}"]`);
     postElement.classList.remove('fw-bold');

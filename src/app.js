@@ -23,6 +23,7 @@ const elements = {
   feedsList: document.querySelector('.feeds'),
   modalHeader: document.querySelector('.modal-header'),
   modalBody: document.querySelector('.modal-body'),
+  modalHref: document.querySelector('.full-article'),
 };
 
 const getData = (url) => axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${url}`);
@@ -63,7 +64,6 @@ const parsePost = (post, feedId) => {
 };
 
 const updatePosts = (watchedState) => {
-  console.log('update', state);
   state.feeds.forEach((feed) => {
     getData(feed.link).then((response) => {
       // eslint-disable-next-line no-param-reassign
