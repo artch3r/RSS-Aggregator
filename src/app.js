@@ -5,7 +5,7 @@ import axios from 'axios';
 import { uniqueId } from 'lodash';
 import render from './render.js';
 
-const validate = (input, state) => {
+const validate = (input, watchedState) => {
   yup.setLocale({
     string: {
       url: () => ({ key: 'notUrl' }),
@@ -15,7 +15,7 @@ const validate = (input, state) => {
     },
   });
   const strSchema = yup.string().url();
-  const links = state.feeds.map((feed) => feed.link);
+  const links = watchedState.feeds.map((feed) => feed.link);
   const uniqueSchema = yup.mixed().notOneOf(links);
   return strSchema.validate(input).then((url) => uniqueSchema.validate(url));
 };
@@ -120,7 +120,7 @@ const app = (i18next) => {
     event.preventDefault();
     const formData = new FormData(event.target);
     const input = formData.get('url');
-    validate(input, state)
+    validate(input, watchedState)
       .then(() => {
         state.error = '';
         watchedState.formState = 'sending';
@@ -137,7 +137,7 @@ const app = (i18next) => {
   });
 
   elements.postsList.addEventListener('click', (event) => {
-    const currentPost = state.posts.find((post) => post.id === event.target.dataset.id);
+    const currentPost = watchedState.posts.find((post) => post.id === event.target.dataset.id);
     if (currentPost) {
       watchedState.uiState.viewedPostIds.add(currentPost.id);
       watchedState.uiState.displayedPost = currentPost;
