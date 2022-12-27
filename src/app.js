@@ -24,9 +24,7 @@ const getData = (url) => {
   const proxyUrl = new URL('/get', 'https://allorigins.hexlet.app');
   proxyUrl.searchParams.append('disableCache', 'true');
   proxyUrl.searchParams.append('url', url);
-  return axios.get(proxyUrl).catch(() => {
-    throw new Error('networkError');
-  });
+  return axios.get(proxyUrl);
 };
 
 const parsePost = (post) => {
@@ -44,20 +42,26 @@ const parsePost = (post) => {
 
 const parse = (rss, input) => {
   const parser = new DOMParser();
-  const data = parser.parseFromString(rss, 'application/xml');
-  try {
-    const feedTitle = data.querySelector('title').textContent;
-    const feedDescription = data.querySelector('description').textContent;
-    const feed = {
-      link: input,
-      title: feedTitle,
-      description: feedDescription,
-    };
-    const posts = [...data.querySelectorAll('item')].map(parsePost);
-    return { feed, posts };
-  } catch (e) {
-    throw new Error('notRss');
+  const data = parser.parseFromString(rss, 'text/xml');
+  const parseError = data.querySelector('parsererror');
+
+  if (parseError) {
+    const error = new Error(parseError.textContent);
+    error.isParsingError = true;
+    throw error;
   }
+
+  const feedTitle = data.querySelector('title').textContent;
+  const feedDescription = data.querySelector('description').textContent;
+  const feed = {
+    link: input,
+    title: feedTitle,
+    description: feedDescription,
+  };
+
+  const posts = [...data.querySelectorAll('item')].map(parsePost);
+
+  return { feed, posts };
 };
 
 const addIds = (posts, feedId) => {
@@ -88,6 +92,18 @@ const updatePosts = (watchedState) => {
   });
 
   return setTimeout(updatePosts, 5000, watchedState);
+};
+
+const handleError = (error) => {
+  if (error.isParsingError) {
+    return 'notRss';
+  }
+
+  if (axios.isAxiosError(error)) {
+    return 'networkError';
+  }
+
+  return error.message.key ?? 'unknown';
 };
 
 const app = (i18next) => {
@@ -130,9 +146,9 @@ const app = (i18next) => {
         const data = parse(response.data.contents, input);
         handleData(data, watchedState);
       })
-      .catch((e) => {
+      .catch((error) => {
         watchedState.formState = 'invalid';
-        watchedState.error = e.message.key ?? e.message;
+        watchedState.error = handleError(error);
       });
   });
 
