@@ -97,7 +97,8 @@ const app = (i18next) => {
     feeds: [],
     posts: [],
     uiState: {
-      viewedPostsIds: new Set(),
+      displayedPost: null,
+      viewedPostIds: new Set(),
     },
   };
 
@@ -133,6 +134,14 @@ const app = (i18next) => {
         watchedState.formState = 'invalid';
         watchedState.error = e.message.key ?? e.message;
       });
+  });
+
+  elements.postsList.addEventListener('click', (event) => {
+    const currentPost = state.posts.find((post) => post.id === event.target.dataset.id);
+    if (currentPost) {
+      watchedState.uiState.viewedPostIds.add(currentPost.id);
+      watchedState.uiState.displayedPost = currentPost;
+    }
   });
 
   updatePosts(watchedState);

@@ -17,7 +17,7 @@ const createFeeds = (state) => {
   return feeds;
 };
 
-const createButton = (post, elements, state) => {
+const createButton = (post) => {
   const buttonEl = document.createElement('button');
   buttonEl.setAttribute('type', 'button');
   buttonEl.setAttribute('data-id', post.id);
@@ -25,20 +25,10 @@ const createButton = (post, elements, state) => {
   buttonEl.setAttribute('data-bs-target', '#modal');
   buttonEl.classList.add('btn', 'btn-outline-primary', 'btn-sm');
   buttonEl.textContent = 'Просмотр';
-  buttonEl.addEventListener('click', () => {
-    elements.modalHeader.textContent = post.title;
-    elements.modalBody.textContent = post.description;
-    elements.modalHref.setAttribute('href', post.link);
-    state.uiState.viewedPostsIds.add(post.id);
-    const postElement = document.querySelector(`[data-id="${post.id}"]`);
-    postElement.classList.remove('fw-bold');
-    postElement.classList.add('fw-normal');
-    console.log('state', state);
-  });
   return buttonEl;
 };
 
-const createPosts = (state, elements) => {
+const createPosts = (state) => {
   const posts = [];
   state.posts.forEach((post) => {
     const liEl = document.createElement('li');
@@ -48,13 +38,13 @@ const createPosts = (state, elements) => {
     aEl.setAttribute('data-id', post.id);
     aEl.setAttribute('target', '_blank');
     aEl.setAttribute('rel', 'noopener noreferrer');
-    if (state.uiState.viewedPostsIds.has(post.id)) {
+    if (state.uiState.viewedPostIds.has(post.id)) {
       aEl.classList.add('fw-normal');
     } else {
       aEl.classList.add('fw-bold');
     }
     aEl.textContent = post.title;
-    const buttonEl = createButton(post, elements, state);
+    const buttonEl = createButton(post);
     liEl.append(aEl);
     liEl.append(buttonEl);
     posts.push(liEl);
@@ -62,7 +52,7 @@ const createPosts = (state, elements) => {
   return posts;
 };
 
-const createList = (itemsType, state, i18next, elements) => {
+const createList = (itemsType, state, i18next) => {
   const card = document.createElement('div');
   card.classList.add('card', 'border-0');
   const cardBody = document.createElement('div');
@@ -79,7 +69,7 @@ const createList = (itemsType, state, i18next, elements) => {
       list.append(...createFeeds(state));
       break;
     case 'posts':
-      list.append(...createPosts(state, elements));
+      list.append(...createPosts(state));
       break;
     default:
       break;
@@ -105,7 +95,7 @@ const renderSending = (elements, i18next) => {
   elements.feedback.textContent = i18next.t('status.sending');
 };
 
-const renderAdded = (state, elements, i18next) => {
+const renderAdded = (elements, i18next) => {
   elements.submit.disabled = false;
   elements.urlInput.classList.remove('is-invalid');
   elements.feedback.classList.remove('text-danger');
@@ -116,7 +106,7 @@ const renderAdded = (state, elements, i18next) => {
   elements.urlInput.focus();
 };
 
-const renderState = (state, elements, i18next, value) => {
+const renderState = (elements, i18next, value) => {
   switch (value) {
     case 'invalid':
       renderInvalid(elements);
@@ -125,7 +115,7 @@ const renderState = (state, elements, i18next, value) => {
       renderSending(elements, i18next);
       break;
     case 'added': {
-      renderAdded(state, elements, i18next);
+      renderAdded(elements, i18next);
       break;
     }
     default:
@@ -150,10 +140,24 @@ const renderPosts = (state, elements, i18next) => {
   elements.postsList.append(posts);
 };
 
+const renderDisplayedPost = (state, elements, post) => {
+  elements.modalHeader.textContent = post.title;
+  elements.modalBody.textContent = post.description;
+  elements.modalHref.setAttribute('href', post.link);
+  state.uiState.viewedPostIds.add(post.id);
+};
+
+const renderViewedPosts = (postIds) => {
+  const lastId = [...postIds].at(-1);
+  const postElement = document.querySelector(`[data-id="${lastId}"]`);
+  postElement.classList.remove('fw-bold');
+  postElement.classList.add('fw-normal');
+};
+
 const render = (state, elements, i18next) => (path, value) => {
   switch (path) {
     case 'formState':
-      renderState(state, elements, i18next, value);
+      renderState(elements, i18next, value);
       break;
     case 'error':
       renderError(state, elements, i18next);
@@ -163,6 +167,12 @@ const render = (state, elements, i18next) => (path, value) => {
       break;
     case 'posts':
       renderPosts(state, elements, i18next);
+      break;
+    case 'uiState.displayedPost':
+      renderDisplayedPost(state, elements, value);
+      break;
+    case 'uiState.viewedPostIds':
+      renderViewedPosts(value);
       break;
     default:
       break;
