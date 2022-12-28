@@ -6,15 +6,7 @@ import { uniqueId } from 'lodash';
 import render from './render.js';
 
 const validate = (input, watchedState) => {
-  yup.setLocale({
-    string: {
-      url: () => ({ key: 'notUrl' }),
-    },
-    mixed: {
-      notOneOf: () => ({ key: 'alreadyInList' }),
-    },
-  });
-  const strSchema = yup.string().url();
+  const strSchema = yup.string().url().required();
   const links = watchedState.feeds.map((feed) => feed.link);
   const uniqueSchema = yup.mixed().notOneOf(links);
   return strSchema.validate(input).then((url) => uniqueSchema.validate(url));
@@ -131,6 +123,15 @@ const app = (i18next) => {
   };
 
   const watchedState = onChange(state, render(state, elements, i18next));
+
+  yup.setLocale({
+    string: {
+      url: () => ({ key: 'notUrl' }),
+    },
+    mixed: {
+      notOneOf: () => ({ key: 'alreadyInList' }),
+    },
+  });
 
   elements.form.addEventListener('submit', (event) => {
     event.preventDefault();
