@@ -78,32 +78,34 @@ const createList = (itemsType, state, i18next) => {
   return card;
 };
 
-const renderInvalid = (elements) => {
-  elements.submit.disabled = false;
-  elements.urlInput.classList.add('is-invalid');
-  elements.feedback.classList.remove('text-success');
-  elements.feedback.classList.remove('text-warning');
-  elements.feedback.classList.add('text-danger');
+const renderInvalid = ({ submit, urlInput, feedback }) => {
+  submit.disabled = false;
+  urlInput.classList.add('is-invalid');
+  feedback.classList.remove('text-success');
+  feedback.classList.remove('text-warning');
+  feedback.classList.add('text-danger');
 };
 
-const renderSending = (elements, i18next) => {
-  elements.submit.disabled = true;
-  elements.urlInput.classList.remove('is-invalid');
-  elements.feedback.classList.remove('text-danger');
-  elements.feedback.classList.remove('text-success');
-  elements.feedback.classList.add('text-warning');
-  elements.feedback.textContent = i18next.t('status.sending');
+const renderSending = ({ submit, urlInput, feedback }, i18next) => {
+  submit.disabled = true;
+  urlInput.classList.remove('is-invalid');
+  feedback.classList.remove('text-danger');
+  feedback.classList.remove('text-success');
+  feedback.classList.add('text-warning');
+  feedback.textContent = i18next.t('status.sending');
 };
 
-const renderAdded = (elements, i18next) => {
-  elements.submit.disabled = false;
-  elements.urlInput.classList.remove('is-invalid');
-  elements.feedback.classList.remove('text-danger');
-  elements.feedback.classList.remove('text-warning');
-  elements.feedback.classList.add('text-success');
-  elements.feedback.textContent = i18next.t('status.success');
-  elements.form.reset();
-  elements.urlInput.focus();
+const renderAdded = ({
+  submit, urlInput, feedback, form,
+}, i18next) => {
+  submit.disabled = false;
+  urlInput.classList.remove('is-invalid');
+  feedback.classList.remove('text-danger');
+  feedback.classList.remove('text-warning');
+  feedback.classList.add('text-success');
+  feedback.textContent = i18next.t('status.success');
+  form.reset();
+  urlInput.focus();
 };
 
 const renderState = (elements, i18next, value) => {
@@ -123,31 +125,31 @@ const renderState = (elements, i18next, value) => {
   }
 };
 
-const renderError = (state, elements, i18next, error) => {
+const renderError = (state, { feedback }, i18next, error) => {
   if (error === null) {
     return;
   }
 
-  elements.feedback.classList.add('text-danger');
-  elements.feedback.textContent = i18next.t(`errors.${state.error}`);
+  feedback.classList.add('text-danger');
+  feedback.textContent = i18next.t(`errors.${state.error}`);
 };
 
-const renderFeeds = (state, elements, i18next) => {
-  elements.feedsList.innerHTML = '';
+const renderFeeds = (state, { feedsList }, i18next) => {
+  feedsList.innerHTML = '';
   const feeds = createList('feeds', state, i18next);
-  elements.feedsList.append(feeds);
+  feedsList.append(feeds);
 };
 
-const renderPosts = (state, elements, i18next) => {
-  elements.postsList.innerHTML = '';
-  const posts = createList('posts', state, i18next, elements);
-  elements.postsList.append(posts);
+const renderPosts = (state, { postsList }, i18next) => {
+  postsList.innerHTML = '';
+  const posts = createList('posts', state, i18next);
+  postsList.append(posts);
 };
 
-const renderDisplayedPost = (state, elements, post) => {
-  elements.modalHeader.textContent = post.title;
-  elements.modalBody.textContent = post.description;
-  elements.modalHref.setAttribute('href', post.link);
+const renderDisplayedPost = (state, { modalHeader, modalBody, modalHref }, post) => {
+  modalHeader.textContent = post.title;
+  modalBody.textContent = post.description;
+  modalHref.setAttribute('href', post.link);
   state.uiState.viewedPostIds.add(post.id);
 };
 
