@@ -4,6 +4,7 @@ import onChange from 'on-change';
 import axios from 'axios';
 import { uniqueId } from 'lodash';
 import render from './render.js';
+import parse from './rss.js';
 
 const validate = (input, watchedState) => {
   const strSchema = yup.string().url().required();
@@ -17,43 +18,6 @@ const getData = (url) => {
   proxyUrl.searchParams.append('disableCache', 'true');
   proxyUrl.searchParams.append('url', url);
   return axios.get(proxyUrl);
-};
-
-const parsePost = (post) => {
-  const postLink = post.querySelector('link').textContent;
-  const postTitle = post.querySelector('title').textContent;
-  const postDescription = post.querySelector('description').textContent;
-  const postDate = post.querySelector('pubDate').textContent;
-  return {
-    link: postLink,
-    title: postTitle,
-    description: postDescription,
-    date: postDate,
-  };
-};
-
-const parse = (rss, input) => {
-  const parser = new DOMParser();
-  const data = parser.parseFromString(rss, 'text/xml');
-  const parseError = data.querySelector('parsererror');
-
-  if (parseError) {
-    const error = new Error(parseError.textContent);
-    error.isParsingError = true;
-    throw error;
-  }
-
-  const feedTitle = data.querySelector('title').textContent;
-  const feedDescription = data.querySelector('description').textContent;
-  const feed = {
-    link: input,
-    title: feedTitle,
-    description: feedDescription,
-  };
-
-  const posts = [...data.querySelectorAll('item')].map(parsePost);
-
-  return { feed, posts };
 };
 
 const addIds = (posts, feedId) => {
