@@ -36,17 +36,21 @@ const handleData = (data, watchedState) => {
 };
 
 const updatePosts = (watchedState) => {
-  watchedState.feeds.forEach((feed) => {
-    getData(feed.link).then((response) => {
-      const { posts } = parse(response.data.contents);
-      const displayedPostsTitles = watchedState.posts.map((post) => post.title);
-      const newPosts = posts.filter((post) => !displayedPostsTitles.includes(post.title));
-      addIds(newPosts, feed.id);
-      watchedState.posts.unshift(...newPosts);
-    });
-  });
+  if (watchedState.feeds.length === 0) {
+    return setTimeout(updatePosts, 5000, watchedState);
+  }
 
-  return setTimeout(updatePosts, 5000, watchedState);
+  const promises = watchedState.feeds.map((feed) => getData(feed.link).then((response) => {
+    const { posts } = parse(response.data.contents);
+    const displayedPostLinks = watchedState.posts.map((post) => post.link);
+    const newPosts = posts.filter((post) => !displayedPostLinks.includes(post.link));
+    addIds(newPosts, feed.id);
+    return newPosts;
+  }));
+
+  return Promise.all(promises).then((newPosts) => {
+    watchedState.posts.unshift(...newPosts.flat());
+  }).then(() => setTimeout(updatePosts, 5000, watchedState));
 };
 
 const handleError = (error) => {
