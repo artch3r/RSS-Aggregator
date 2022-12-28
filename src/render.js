@@ -123,7 +123,11 @@ const renderState = (elements, i18next, value) => {
   }
 };
 
-const renderError = (state, elements, i18next) => {
+const renderError = (state, elements, i18next, error) => {
+  if (error === null) {
+    return;
+  }
+
   elements.feedback.classList.add('text-danger');
   elements.feedback.textContent = i18next.t(`errors.${state.error}`);
 };
@@ -160,7 +164,7 @@ const render = (state, elements, i18next) => (path, value) => {
       renderState(elements, i18next, value);
       break;
     case 'error':
-      renderError(state, elements, i18next);
+      renderError(state, elements, i18next, value);
       break;
     case 'feeds':
       renderFeeds(state, elements, i18next);

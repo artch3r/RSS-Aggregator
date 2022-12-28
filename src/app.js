@@ -69,7 +69,6 @@ const handleData = (data, watchedState) => {
   watchedState.feeds.push(feed);
   addIds(posts, feed.id);
   watchedState.posts.push(...posts);
-  watchedState.formState = 'added';
 };
 
 const updatePosts = (watchedState) => {
@@ -101,7 +100,7 @@ const handleError = (error) => {
 const app = (i18next) => {
   const state = {
     formState: 'filling',
-    error: '',
+    error: null,
     feeds: [],
     posts: [],
     uiState: {
@@ -139,13 +138,14 @@ const app = (i18next) => {
     const input = formData.get('url');
     validate(input, watchedState)
       .then(() => {
-        state.error = '';
+        watchedState.error = null;
         watchedState.formState = 'sending';
         return getData(input);
       })
       .then((response) => {
         const data = parse(response.data.contents, input);
         handleData(data, watchedState);
+        watchedState.formState = 'added';
       })
       .catch((error) => {
         watchedState.formState = 'invalid';
