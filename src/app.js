@@ -30,9 +30,9 @@ const addIds = (posts, feedId) => {
 const handleData = (data, watchedState) => {
   const { feed, posts } = data;
   feed.id = uniqueId();
-  watchedState.feeds.push(feed);
+  watchedState.feeds.unshift(feed);
   addIds(posts, feed.id);
-  watchedState.posts.push(...posts);
+  watchedState.posts.unshift(...posts);
 };
 
 const updatePosts = (watchedState) => {
