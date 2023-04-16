@@ -8,7 +8,7 @@
 
 ## Description
 
-**[RSS-aggregator](https://frontend-project-11-eosin.vercel.app/)** is a service for aggregating RSS feeds that help you read various sources, such as blogs, news, etc...  
+**[RSS-aggregator](https://artch3r-rss-aggregator.vercel.app/)** is a service for aggregating RSS feeds that helps you conveniently read a variety of sources, such as blogs, news, etc...  
 It allows you to add an unlimited number of RSS feeds. Application updates feeds and add new entries to the general flow.
 
 ## Get Started Locally
